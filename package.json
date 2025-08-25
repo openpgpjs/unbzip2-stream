@@ -13,6 +13,7 @@
   "scripts": {
     "prepare-long-test": "head -c 104857600 < /dev/urandom | tee test/fixtures/vmlinux.bin | bzip2 > test/fixtures/vmlinux.bin.bz2",
     "long-test": "tape test/extra/long.js",
+    "browser-test": "beefy test/browser/download.js --open -- -t brfs",
     "download-test": "beefy test/browser/long.js --open -- -t brfs",
     "test": "tape test/*.js"
   },
