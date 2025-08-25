@@ -1,4 +1,3 @@
-var through = require('through');
 var bz2 = require('./lib/bzip2');
 var bitIterator = require('./lib/bit_iterator');
 
@@ -42,11 +41,11 @@ function unbzip2Stream() {
     }
 
     var outlength = 0;
-    function decompressAndQueue(stream) {
+    function decompressAndQueue(controller) {
         if (broken) return;
         try {
             return decompressBlock(function(d) {
-                stream.queue(d);
+                controller.enqueue(d);
                 if (d !== null) {
                     //console.error('write at', outlength.toString(16));
                     outlength += d.length;
@@ -56,15 +55,15 @@ function unbzip2Stream() {
             });
         } catch(e) {
             //console.error(e);
-            stream.emit('error', e);
+            controller.error(e);
             broken = true;
             return false;
         }
     }
 
-    return through(
-        function write(data) {
-            //console.error('received', data.length,'bytes in', typeof data);
+    return new TransformStream({
+        transform(data, controller) {
+            //console.error('received', data.length, 'bytes in', typeof data);
             bufferQueue.push(data);
             hasBytes += data.length;
             if (bitReader === null) {
@@ -74,20 +73,19 @@ function unbzip2Stream() {
             }
             while (!broken && hasBytes - bitReader.bytesRead + 1 >= ((25000 + 100000 * blockSize) || 4)){
                 //console.error('decompressing with', hasBytes - bitReader.bytesRead + 1, 'bytes in buffer');
-                decompressAndQueue(this);
+                decompressAndQueue(controller);
             }
         },
-        function end(x) {
-            //console.error(x,'last compressing with', hasBytes, 'bytes in buffer');
+        flush(controller) {
+            //console.error('last compressing with', hasBytes, 'bytes in buffer');
             while (!broken && bitReader && hasBytes > bitReader.bytesRead){
-                decompressAndQueue(this);
+                decompressAndQueue(controller);
             }
             if (!broken) {
                 if (streamCRC !== null)
-                    this.emit('error', new Error("input stream ended prematurely"));
-                this.queue(null);
+                    controller.error(new Error("input stream ended prematurely"));
             }
         }
-    );
+    });
 }
 
