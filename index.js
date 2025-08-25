@@ -35,7 +35,7 @@ function unbzip2Stream() {
                 return false;
             }else{
                 //console.error('decompressed', chunk.length,'bytes');
-                push(Buffer.from(chunk));
+                push(new Uint8Array(chunk));
                 return true;
             }
         }
