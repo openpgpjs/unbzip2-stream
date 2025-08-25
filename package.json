@@ -11,8 +11,6 @@
     "decompress"
   ],
   "scripts": {
-    "prepare": "mkdir -p dist && browserify -s unbzip2Stream index.js | uglifyjs > dist/unbzip2-stream.min.js",
-    "browser-test": "browserify -t brfs test/simple.js | tape-run",
     "prepare-long-test": "head -c 104857600 < /dev/urandom | tee test/fixtures/vmlinux.bin | bzip2 > test/fixtures/vmlinux.bin.bz2",
     "long-test": "tape test/extra/long.js",
     "download-test": "beefy test/browser/long.js --open -- -t brfs",
@@ -28,8 +26,7 @@
   },
   "files": [
     "index.js",
-    "lib",
-    "dist/unbzip2-stream.min.js"
+    "lib"
   ],
   "main": "index.js",
   "devDependencies": {
@@ -39,8 +36,7 @@
     "concat-stream": "^1.4.7",
     "stream-equal": "^1.1.1",
     "tape": "^4.9.2",
-    "tape-run": "^4.0.0",
-    "uglify-js": "^3.0.10"
+    "tape-run": "^4.0.0"
   },
   "license": "MIT"
 }
