@@ -4,6 +4,18 @@ var concat = require('concat-stream');
 var test = require('tape');
 var fs = require('fs');
 
+test('accepts data as a web transform stream', async function(t) {
+    t.plan(1);
+    const fileStream = stream.Readable.toWeb(fs.createReadStream('test/fixtures/text.bz2'));
+    const decompressedStream = fileStream.pipeThrough(unbzip2Stream()).pipeThrough(new TextDecoderStream());
+    const chunks = [];
+    for await (const chunk of decompressedStream) {
+        chunks.push(chunk);
+    }
+    const expected = "Hello World!\nHow little you are. now.\n\n";
+    t.equal(chunks.join(''), expected);
+});
+
 test('accepts data in both write and end', function(t) {
     t.plan(1);
     var compressed = fs.readFileSync('test/fixtures/text.bz2');
