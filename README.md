@@ -10,15 +10,31 @@ When browserified, the stream emits instances of [feross/buffer](https://github.
 
 Usage
 ---
+
+### Node
 ``` js
-var bz2 = require('unbzip2-stream');
+var unbzip2Stream = require('unbzip2-stream');
 var fs = require('fs');
 
 // decompress test.bz2 and output the result
-fs.createReadStream('./test.bz2').pipe(bz2()).pipe(process.stdout);
+fs.createReadStream('./test.bz2')
+    .pipe(stream.Duplex.fromWeb(unbzip2Stream()))
+    .pipe(process.stdout);
 ```
 
-Also see [test/browser/download.js](https://github.com/regular/unbzip2-stream/blob/master/test/browser/download.js) for an example of decompressing a file while downloading.
+### Web
+``` js
+import unbzip2Stream from 'unbzip2-stream';
+
+// decompress test.bz2 and output the result
+const response = await fetch('./test.bz2');
+const decompressedStream = response.data.pipeThrough(unbzip2Stream());
+for await(const chunk of decompressedStream) {
+    console.log(chunk);
+}
+```
+
+Also see [test/browser/download.js](https://github.com/regular/unbzip2-stream/blob/master/test/browser/download.js) for a complete example of decompressing a file while downloading.
 
 Tests
 ---
