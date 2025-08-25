@@ -19,11 +19,11 @@
   },
   "author": "Jan Bölsche <jan@lagomorph.de>",
   "repository": {
-    "url": "https://github.com/regular/unbzip2-stream.git",
+    "url": "git+https://github.com/openpgpjs/unbzip2-stream.git",
     "type": "git"
   },
   "bugs": {
-    "url": "https://github.com/regular/unbzip2-stream/issues"
+    "url": "https://github.com/openpgpjs/unbzip2-stream/issues"
   },
   "files": [
     "index.js",

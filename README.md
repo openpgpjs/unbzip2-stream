@@ -34,7 +34,7 @@ for await(const chunk of decompressedStream) {
 }
 ```
 
-Also see [test/browser/download.js](https://github.com/regular/unbzip2-stream/blob/master/test/browser/download.js) for a complete example of decompressing a file while downloading.
+Also see [test/browser/download.js](https://github.com/openpgpjs/unbzip2-stream/blob/master/test/browser/download.js) for a complete example of decompressing a file while downloading.
 
 Tests
 ---
