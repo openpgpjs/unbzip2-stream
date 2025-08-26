@@ -1,5 +1,5 @@
 {
-  "name": "unbzip2-stream",
+  "name": "@openpgp/unbzip2-stream",
   "version": "1.4.2",
   "description": "streaming unbzip2 implementation in pure javascript for node and browsers",
   "keywords": [
