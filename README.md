@@ -1,12 +1,10 @@
-[![npm version](https://badge.fury.io/js/unbzip2-stream.svg)](http://badge.fury.io/js/unbzip2-stream)
+[![npm version](https://badge.fury.io/js/@openpgp%2Funbzip2-stream.svg)](https://badge.fury.io/js/@openpgp%2Funbzip2-stream)
 
 unbzip2-stream
 ===
-streaming bzip2 decompressor in pure JS for Node and browserify.
+streaming bzip2 decompressor in pure JS for Node and browsers.
 
-Buffers
----
-When browserified, the stream emits instances of [feross/buffer](https://github.com/feross/buffer) instead of raw Uint8Arrays to have a consistant API across browsers and Node.
+In both environments, the library uses `TransformStream`s and `Uint8Array`s.
 
 Usage
 ---
