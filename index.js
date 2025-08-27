@@ -61,8 +61,39 @@ function unbzip2Stream() {
         }
     }
 
-    return new TransformStream({
-        transform(data, controller) {
+    function provideData(controller) {
+        while (
+            !broken &&
+            bitReader &&
+            (done ?
+                hasBytes > bitReader.bytesRead :
+                hasBytes - bitReader.bytesRead + 1 >= 25000 + 100000 * (blockSize || 4)
+            ) &&
+            controller.desiredSize > 0
+        ) {
+            try {
+                //console.error('decompressing with', hasBytes - bitReader.bytesRead + 1, 'bytes in buffer');
+                decompressAndQueue(controller);
+            } catch (e) {
+                controller.error(e);
+            }
+        }
+        if (done && !broken && hasBytes <= bitReader.bytesRead) {
+            if (streamCRC === null) {
+                controller.close();
+            } else {
+                controller.error(new Error("input stream ended prematurely"));
+            }
+        }
+    }
+
+    let writableController, readableController;
+    let backpressureChangePromiseResolve;
+    const writable = new WritableStream({
+        start(controller) {
+            writableController = controller;
+        },
+        async write(data) {
             //console.error('received', data.length, 'bytes in', typeof data);
             bufferQueue.push(data);
             hasBytes += data.length;
@@ -71,21 +102,38 @@ function unbzip2Stream() {
                     return bufferQueue.shift();
                 });
             }
-            while (!broken && hasBytes - bitReader.bytesRead + 1 >= ((25000 + 100000 * blockSize) || 4)){
-                //console.error('decompressing with', hasBytes - bitReader.bytesRead + 1, 'bytes in buffer');
-                decompressAndQueue(controller);
+            const backpressureChangePromise = new Promise(resolve => {
+                backpressureChangePromiseResolve = resolve;
+            });
+            provideData(readableController);
+            if (readableController.desiredSize > 0) {
+                return;
             }
+            await backpressureChangePromise;
         },
-        flush(controller) {
-            //console.error('last compressing with', hasBytes, 'bytes in buffer');
-            while (!broken && bitReader && hasBytes > bitReader.bytesRead){
-                decompressAndQueue(controller);
-            }
-            if (!broken) {
-                if (streamCRC !== null)
-                    controller.error(new Error("input stream ended prematurely"));
-            }
+        close() {
+            done = true;
+            provideData(readableController);
+        },
+        abort(reason) {
+            readableController.error(reason);
         }
     });
+    const readable = new ReadableStream({
+        start(controller) {
+            readableController = controller;
+        },
+        pull(controller) {
+            provideData(controller);
+            if (controller.desiredSize > 0 && backpressureChangePromiseResolve) {
+                backpressureChangePromiseResolve();
+            }
+        },
+        cancel(reason) {
+            writableController.error(reason);
+        }
+    });
+
+    return { writable, readable };
 }
 
