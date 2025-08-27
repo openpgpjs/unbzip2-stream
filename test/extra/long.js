@@ -1,14 +1,14 @@
-var unbzip2Stream = require('../..');
-var stream = require('stream');
-var test = require('tape');
-var fs = require('fs');
-var streamEqual = require('stream-equal');
+const Unbzip2Stream = require('../..');
+const stream = require('stream');
+const test = require('tape');
+const fs = require('fs');
+const streamEqual = require('stream-equal');
 
 test('a very large binary file piped into unbzip2-stream results in original file content', function(t) {
     t.plan(1);
-    var source = fs.createReadStream('test/fixtures/vmlinux.bin.bz2');
-    var expected = fs.createReadStream('test/fixtures/vmlinux.bin');
-    var unbz2 = stream.Duplex.fromWeb(unbzip2Stream());
+    const source = fs.createReadStream('test/fixtures/vmlinux.bin.bz2');
+    const expected = fs.createReadStream('test/fixtures/vmlinux.bin');
+    const unbz2 = stream.Duplex.fromWeb(new Unbzip2Stream());
     source.pipe(unbz2);
     streamEqual(expected, unbz2, function(err, equal) {
         if (err)

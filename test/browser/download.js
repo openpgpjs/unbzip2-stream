@@ -1,4 +1,4 @@
-const unbzip2Stream = require('../../');
+const Unbzip2Stream = require('../../');
 const test = require('tape');
 
 test('http stream piped into unbzip2-stream results in original file content', async function(t) {
@@ -7,7 +7,7 @@ test('http stream piped into unbzip2-stream results in original file content', a
     const response = await fetch('/test/fixtures/text.bz2');
     const responseStream = response.body;
     const decompressedStream = responseStream
-        .pipeThrough(unbzip2Stream())
+        .pipeThrough(new Unbzip2Stream())
         .pipeThrough(new TextDecoderStream());
     const chunks = [];
     for await (const chunk of decompressedStream) {

@@ -11,22 +11,22 @@ Usage
 
 ### Node
 ``` js
-var unbzip2Stream = require('unbzip2-stream');
-var fs = require('fs');
+const Unbzip2Stream = require('unbzip2-stream');
+const fs = require('fs');
 
 // decompress test.bz2 and output the result
 fs.createReadStream('./test.bz2')
-    .pipe(stream.Duplex.fromWeb(unbzip2Stream()))
+    .pipe(stream.Duplex.fromWeb(new Unbzip2Stream()))
     .pipe(process.stdout);
 ```
 
 ### Web
 ``` js
-import unbzip2Stream from 'unbzip2-stream';
+import Unbzip2Stream from 'unbzip2-stream';
 
 // decompress test.bz2 and output the result
 const response = await fetch('./test.bz2');
-const decompressedStream = response.data.pipeThrough(unbzip2Stream());
+const decompressedStream = response.data.pipeThrough(new Unbzip2Stream());
 for await(const chunk of decompressedStream) {
     console.log(chunk);
 }
