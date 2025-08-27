@@ -19,7 +19,7 @@ class Unbzip2Stream {
                 blockSize = bz2.header(bitReader);
                 //console.error("got header of", blockSize);
                 streamCRC = 0;
-                return true;
+                return false;
             } else {
                 const bufsize = 100000 * blockSize;
                 const buf = new Int32Array(bufsize);
@@ -75,7 +75,9 @@ class Unbzip2Stream {
             ) {
                 try {
                     //console.error('decompressing with', hasBytes - bitReader.bytesRead + 1, 'bytes in buffer');
-                    decompressAndQueue(controller);
+                    if (decompressAndQueue(controller)) {
+                        return; // `pull` will get called again
+                    }
                 } catch (e) {
                     controller.error(e);
                 }
