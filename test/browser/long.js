@@ -1,4 +1,4 @@
-const Unbzip2Stream = require('../../');
+const unbzip2Stream = require('../../');
 const test = require('tape');
 
 test('http stream piped into unbzip2-stream results in original file content', async function(t) {
@@ -6,7 +6,7 @@ test('http stream piped into unbzip2-stream results in original file content', a
 
     const response = await fetch('/test/fixtures/vmlinux.bin.bz2');
     const responseStream = response.body;
-    const decompressedStream = responseStream.pipeThrough(new Unbzip2Stream());
+    const decompressedStream = unbzip2Stream(responseStream);
     const chunks = [];
     for await (const chunk of decompressedStream) {
         chunks.push(chunk);

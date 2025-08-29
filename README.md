@@ -9,27 +9,29 @@ In both environments, the library uses `TransformStream`s and `Uint8Array`s.
 Usage
 ---
 
-### Node
-``` js
-const Unbzip2Stream = require('unbzip2-stream');
-const fs = require('fs');
-
-// decompress test.bz2 and output the result
-fs.createReadStream('./test.bz2')
-    .pipe(stream.Duplex.fromWeb(new Unbzip2Stream()))
-    .pipe(process.stdout);
-```
-
 ### Web
 ``` js
-import Unbzip2Stream from 'unbzip2-stream';
+import unbzip2Stream from 'unbzip2-stream';
 
 // decompress test.bz2 and output the result
 const response = await fetch('./test.bz2');
-const decompressedStream = response.data.pipeThrough(new Unbzip2Stream());
+const decompressedStream = unbzip2Stream(response.data);
 for await(const chunk of decompressedStream) {
     console.log(chunk);
 }
+```
+
+### Node
+``` js
+const unbzip2Stream = require('unbzip2-stream');
+const fs = require('fs');
+
+// decompress test.bz2 and output the result
+let stream = fs.createReadStream('./test.bz2');
+stream = stream.Readable.toWeb(stream);
+stream = unbzip2Stream(stream);
+stream = stream.Readable.fromWeb(stream);
+stream.pipe(process.stdout);
 ```
 
 Also see [test/browser/download.js](https://github.com/openpgpjs/unbzip2-stream/blob/master/test/browser/download.js) for a complete example of decompressing a file while downloading.
