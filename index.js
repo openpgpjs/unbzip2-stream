@@ -118,5 +118,5 @@ function unbzip2Stream(input) {
         async cancel(reason) {
             await inputReader.abort(reason);
         }
-    });
+    }, { highWaterMark: 0 });
 }
