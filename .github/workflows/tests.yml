@@ -1,0 +1,27 @@
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  tests:
+    name: Tests
+    strategy:
+      fail-fast: false # if tests for one version fail, continue with the rest
+      matrix:
+        node-version: [18.x, 20.x, 22.x, 24.x]
+    runs-on: ubuntu-latest
+    permissions: {}
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Run tests
+        run: npm test
