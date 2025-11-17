@@ -32,12 +32,12 @@
   "main": "index.js",
   "devDependencies": {
     "beefy": "^2.1.8",
-    "brfs": "^1.2.0",
-    "browserify": "^16.2.3",
-    "concat-stream": "^1.4.7",
+    "brfs": "^1.6.1",
+    "browserify": "^16.5.2",
+    "concat-stream": "^1.6.2",
     "stream-equal": "^1.1.1",
-    "tape": "^4.9.2",
-    "tape-run": "^4.0.0"
+    "tape": "^4.17.0",
+    "tape-run": "^11.0.0"
   },
   "license": "MIT"
 }
