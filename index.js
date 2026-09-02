@@ -15,16 +15,24 @@ function unbzip2Stream(input) {
     function decompressBlock(push){
         if(!blockSize) {
             blockSize = bz2.header(bitReader);
-            //console.error("got header of", blockSize);
             streamCRC = 0;
             return false;
         } else {
             const bufsize = 100000 * blockSize;
             const buf = new Int32Array(bufsize);
 
-            const chunk = [];
+            // Growable output buffer
+            let chunk = new Uint8Array(32768);
+            let chunkLen = 0;
             const f = function(b) {
-                chunk.push(b);
+                if (chunkLen === chunk.length) {
+                    // Grow the chunk buffer
+                    const newLen = Math.min(chunk.length * 2, chunkLen + (maxDecompressedBytes - totalOut) + 1);
+                    const bigger = new Uint8Array(newLen);
+                    bigger.set(chunk);
+                    chunk = bigger;
+                }
+                chunk[chunkLen++] = b;
             };
 
             streamCRC = bz2.decompress(bitReader, f, buf, bufsize, streamCRC);
@@ -33,8 +41,7 @@ function unbzip2Stream(input) {
                 blockSize = 0;
                 return false;
             } else {
-                //console.error('decompressed', chunk.length,'bytes');
-                push(new Uint8Array(chunk));
+                push(chunk.subarray(0, chunkLen));
                 return true;
             }
         }
@@ -47,14 +54,10 @@ function unbzip2Stream(input) {
             return decompressBlock(function(d) {
                 controller.enqueue(d);
                 if (d !== null) {
-                    //console.error('write at', outlength.toString(16));
                     outlength += d.length;
-                } else {
-                    //console.error('written EOS');
                 }
             });
         } catch(e) {
-            //console.error(e);
             controller.error(e);
             broken = true;
             return true;
