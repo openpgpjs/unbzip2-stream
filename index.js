@@ -3,7 +3,7 @@ const bitIterator = require('./lib/bit_iterator');
 
 module.exports = unbzip2Stream;
 
-function unbzip2Stream(input) {
+function unbzip2Stream(input, maxDecompressedBytes = Infinity) {
     const bufferQueue = [];
     let hasBytes = 0;
     let blockSize = 0;
@@ -11,6 +11,7 @@ function unbzip2Stream(input) {
     let hasAllData = false;
     let bitReader = null;
     let streamCRC = null;
+    let totalOut = 0; // cumulative decompressed bytes across all blocks
 
     function decompressBlock(push){
         if(!blockSize) {
@@ -25,6 +26,9 @@ function unbzip2Stream(input) {
             let chunk = new Uint8Array(32768);
             let chunkLen = 0;
             const f = function(b) {
+                if (++totalOut > maxDecompressedBytes) {
+                    throw new Error('Maximum decompressed size exceeded');
+                }
                 if (chunkLen === chunk.length) {
                     // Grow the chunk buffer
                     const newLen = Math.min(chunk.length * 2, chunkLen + (maxDecompressedBytes - totalOut) + 1);
