@@ -154,3 +154,17 @@ test('detects incomplete streams', async function(t) {
         t.ok(true, err);
     }
 });
+
+test('stream piped into unbzip2-stream throws past `maxDecompressedBytes`', async function(t) {
+    t.plan(1);
+
+    const fileStream = stream.Readable.toWeb(fs.createReadStream('test/fixtures/text.bz2'));
+    const decompressedStream = unbzip2Stream(fileStream, 10);
+
+    try {
+        await decompressedStream.getReader().read();
+        t.fail('expected read to throw');
+    } catch (e) {
+        t.match(e.message, /Maximum decompressed size exceeded/);
+    }
+});
